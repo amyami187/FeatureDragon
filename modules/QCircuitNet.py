@@ -25,8 +25,10 @@ class QCircuitNet(torch.nn.Module):
         # evaluate on a sub batch
         #for i_eval in range(args.size()[0]):
         #exp_vals.append(circuit(self.params,X=X_args[i_eval], Y=Y_args[i_eval]).float())
-        exp_vals=circuit(self.params,Xdata=X_args, Y=Y_args).float()
-        out=exp_vals[0]*exp_vals[1]
+        #exp_vals=circuit(self.params,Xdata=X_args, Y=Y_args).float()
+        exp_vals=circuit(self.params,Xdata=X_args, Y=Y_args)
+        exp_vals_float=exp_vals.float()
+        out=exp_vals_float[0]*exp_vals_float[1]
                                  
         #exp_vals=torch.stack(exp_vals_list,dim=0)
         #print('exp_vals: {}'.format(exp_vals))
