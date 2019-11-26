@@ -118,14 +118,17 @@ class Engine:
             self.label = self.label.to(self.device)
             
             #this manipulates the data in the way the quantum circuit wants it
-            data_adj=torch.zeros(self.data.shape[0]+1,self.data.shape[1])
-            data_adj[:-1]=self.data[:]
+            data_adj=torch.zeros(self.data.shape[0]+3,self.data.shape[1])
+            data_adj[:5]=self.data[:]
+            data_adj[-3]=self.data[-1]
+            data_adj[-2]=self.data[-1]
             data_adj[-1]=self.data[-1]
             
-            labels_adj=torch.zeros(self.label.shape[0]+1)
-            labels_adj[:-1]=self.label[:]
+            labels_adj=torch.zeros(self.label.shape[0]+3)
+            labels_adj[:5]=self.label[:]
+            labels_adj[-3]=self.label[-1]
+            labels_adj[-2]=self.label[-1]            
             labels_adj[-1]=self.label[-1]
-            
 
             
             model_out = self.model(data_adj,labels_adj)

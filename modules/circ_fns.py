@@ -46,47 +46,47 @@ def U1f():
     return np.matmul(U_T32, U_T41)
     
 def U1b(): 
-    return np.linalg.inv(U1f)
+    return np.linalg.inv(U1f())
 
 def U2f(): 
     return np.matmul(U_T12, U_T41)
 
 def U2b(): 
-    return np.linalg.inv(U2f)
+    return np.linalg.inv(U2f())
 
 def U3f(): 
     return np.matmul(U_T32, U_T31)
 
 def U3b(): 
-    return np.linalg.inv(U3f)
+    return np.linalg.inv(U3f())
 
 def U4f(): 
     return np.matmul(U_T12, U_T31)
 
 def U4b(): 
-    return np.linalg.inv(U4f)
+    return np.linalg.inv(U4f())
 
 def U5f(): 
     return np.matmul(U_T32, U_T21)
 
 def U5b(): 
-    return np.linalg.inv(U5f)
+    return np.linalg.inv(U5f())
 
 def U6f(): 
     return np.matmul(U_T12, U_T21)
 
 def U6b(): 
-    return np.linalg.inv(U6f)
+    return np.linalg.inv(U6f())
 
 def U7f(): 
     return np.matmul(U_T32, U_T11)
 
 def U7b(): 
-    return np.linalg.inv(U7f)
+    return np.linalg.inv(U7f())
 
 def U8f(): 
     return np.matmul(U_T12, U_T11)
 
 def U8b(): 
-    return np.linalg.inv(U8f)
+    return np.linalg.inv(U8f())
 

@@ -3,6 +3,8 @@
 
 # In[ ]:
 
+import pennylane as qml
+
 
 def featuremap(x1, x2, y, phi0):
     # encode y label
