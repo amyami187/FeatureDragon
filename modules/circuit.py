@@ -51,5 +51,5 @@ def circuit(phi0, Xdata=None, Y=None):
 
     qml.Hadamard(wires=0)
 
-    return qml.expval(qml.Hermitian(np.array([[1, 0], [0, 0]]), wires=0)), qml.expval(qml.PauliZ(wires=4))
+    return qml.expval(qml.Hermitian(np.array([[1, 0], [0, 0]]), wires=0)), qml.expval(qml.PauliZ(wires=5))
 
