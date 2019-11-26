@@ -14,7 +14,7 @@ class QCircuitNet(torch.nn.Module):
     def __init__(self):
         super(QCircuitNet, self).__init__()
         
-        self.params=Parameter(torch.rand(4,dtype=torch.float32))
+        self.params=Parameter(torch.rand(12,dtype=torch.float32))
         print(self.params)
         
         
