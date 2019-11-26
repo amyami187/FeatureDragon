@@ -12,6 +12,8 @@ from sklearn.preprocessing import normalize
 import torch
 
 import builtins
+from modules.featuremap import featuremap
+
 
 # dev_qubit = qml.device('default.qubit', wires=6)
 # Hadamard classifier circuit for 4 data points with 1 new input to be classified and any arbitray featuremap
@@ -48,5 +50,5 @@ def circuit(phi0, Xdata=None, Y=None):
 
     qml.Hadamard(wires=0)
 
-    return qml.expval.Hermitian(np.array([[1, 0], [0, 0]]), wires=0), qml.expval.PauliZ(wires=4)
+    return qml.expval(qml.Hermitian(np.array([[1, 0], [0, 0]]), wires=0)), qml.expval(qml.PauliZ(wires=4))
 

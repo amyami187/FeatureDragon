@@ -17,7 +17,7 @@ class simple_np_ds(Dataset):
         labels_l=self.f["labels"]
         
         self.data = data_l.astype(np.float32)
-        self.labels = labels_l.astype(np.int64)
+        self.labels = labels_l.astype(np.float32)
         
         assert self.data.shape[0] == self.labels.shape[0]
         

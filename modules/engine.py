@@ -14,7 +14,7 @@ import sys
 import time
 import numpy as np
 
-#from utils.data_handling import WCH5Dataset
+# from utils.data_handling import WCH5Dataset
 
 from modules.logging_utils import CSVData
 
@@ -59,23 +59,36 @@ class Engine:
         self.dset=dataset
 
         self.train_dldr=DataLoader(self.dset,
-                                   batch_size=config.batch_size_train,
+                                   batch_size=config.batch_size_train+1,
                                    shuffle=False,
                                    sampler=SubsetRandomSampler(self.dset.train_indices),
-                                   num_workers=config.num_workers_train)
+                                   num_workers=config.num_workers_train,
+                                   drop_last=True)
+        
+        self.train_eval_dldr=DataLoader(self.dset,
+                                       batch_size=config.batch_size_train,
+                                       shuffle=False,
+                                       sampler=SubsetRandomSampler(self.dset.train_indices),
+                                       num_workers=config.num_workers_train,
+                                       drop_last=True)
+        self.train_eval_iter=iter(self.train_eval_dldr)
+        
         
         self.val_dldr=DataLoader(self.dset,
                                  batch_size=config.batch_size_val,
                                  shuffle=False,
                                  sampler=SubsetRandomSampler(self.dset.val_indices),
-                                 num_workers=config.num_workers_val)
+                                 num_workers=config.num_workers_val,
+                                 drop_last=True)
         self.val_iter=iter(self.val_dldr)
         
         self.test_dldr=DataLoader(self.dset,
                                   batch_size=config.batch_size_test,
                                   shuffle=False,
                                   sampler=SubsetRandomSampler(self.dset.test_indices),
-                                  num_workers=config.num_workers_test)
+                                  num_workers=config.num_workers_test,
+                                  drop_last=True)
+        self.test_iter=iter(self.val_dldr)
 
         self.dirpath=config.dump_path + "/"+time.strftime("%Y%m%d_%H%M%S") + "/"
 
@@ -103,23 +116,29 @@ class Engine:
             # if using CPU this has no effect
             self.data = self.data.to(self.device)
             self.label = self.label.to(self.device)
+            
+            #this manipulates the data in the way the quantum circuit wants it
+            data_adj=torch.zeros(self.data.shape[0]+1,self.data.shape[1])
+            data_adj[:-1]=self.data[:]
+            data_adj[-1]=self.data[-1]
+            
+            labels_adj=torch.zeros(self.label.shape[0]+1)
+            labels_adj[:-1]=self.label[:]
+            labels_adj[-1]=self.label[-1]
+            
 
             
-            linear_model_out = self.model(self.data)
+            model_out = self.model(data_adj,labels_adj)
             # Training
             
-            self.loss = self.criterion(linear_model_out,self.label)
+            self.loss = self.criterion(model_out,self.label[-1])
             
-            
-            softmax    = self.softmax(linear_model_out).detach().cpu().numpy()
-            prediction = torch.argmax(linear_model_out,dim=-1)
-            accuracy   = (prediction == self.label).sum().item() / float(prediction.nelement())        
+            prediction = torch.where(model_out>0.0,torch.tensor([1.0]),torch.tensor([-1.0]))
+            #accuracy   = (prediction == self.label).sum().item() / float(prediction.nelement())        
             prediction = prediction.cpu().numpy()
         
         return {'prediction' : prediction,
-                'softmax'    : softmax,
-                'loss'       : self.loss.detach().cpu().item(),
-                'accuracy'   : accuracy}
+                'loss'       : self.loss.detach().cpu().item()}
 
     def backward(self):
         self.optimizer.zero_grad()  # Reset gradients accumulation
@@ -154,33 +173,53 @@ class Engine:
                 # as a sanity check run validation before we start training
                 if i%valid_interval == 0:
                     self.model.eval()
-
-                    try:
-                        val_data = next(self.val_iter)
-                    except StopIteration:
-                        print("starting over on the validation set")
-                        self.val_iter=iter(self.val_dldr)
-                        val_data = next(self.val_iter)
-                        
-                    # Data and label
-                    self.data = val_data[0]
-                    self.label = val_data[1]
                     
-                    res = self.forward(False)
-                    print('... Iteration %d ... Epoch %1.2f ... Validation Loss %1.3f ... Validation Accuracy %1.3f' % (self.iteration,epoch,res['loss'],res['accuracy']))
+                    tot_ens_loss=0.0
+                    for i_eval in range(self.config.num_val_samples):
+                        try:
+                            val_data_label = next(self.val_iter)
+                        except StopIteration:
+                            print("starting over on the validation set")
+                            self.val_iter=iter(self.val_dldr)
+                            val_data_label = next(self.val_iter)
+                        
+                        val_data=val_data_label[0]
+                        val_label=val_data_label[1]
+                        
+                        
+                        for i_train_ens in range(self.config.num_train_ensembles):
+                            try:
+                                ens_train_data = next(self.train_eval_iter)
+                            except StopIteration:
+                                print("starting over on the validation set")
+                                self.train_eval_iter=iter(self.val_dldr)
+                                ens_train_data = next(self.val_iter)
+                                
+                            ens_data=ens_train_data[0]
+                            ens_label=ens_train_data[1]
+                            
+                        
+                            # Data and label
+                            self.data = torch.cat((ens_data,val_data))
+                            self.label = torch.cat((ens_label,val_label))
+                    
+                            res = self.forward(False)
+                            tot_ens_loss+=res['loss']
+                    avg_val_loss=tot_ens_loss/(self.config.num_val_samples*self.config.num_train_ensembles)
+                    print('... Iteration %d ... Epoch %1.2f ... Validation Loss %1.3f' % (self.iteration,epoch,avg_val_loss))
                     
                     
                     self.model.train()
 
                     self.save_state()
                     mark_best=0
-                    if res['loss']<best_val_loss:
-                        best_val_loss=res['loss']
+                    if avg_val_loss<best_val_loss:
+                        best_val_loss=avg_val_loss
                         print('best validation loss so far!: {}'.format(best_val_loss))
                         self.save_state(best=True)
                         mark_best=1
 
-                    self.val_log.record(['iteration','epoch','accuracy','loss','saved_best'],[self.iteration,epoch,res['accuracy'],res['loss'],mark_best])
+                    self.val_log.record(['iteration','epoch','loss','saved_best'],[self.iteration,epoch,avg_val_loss,mark_best])
                     self.val_log.write()
                     self.val_log.flush()
                 
@@ -200,13 +239,13 @@ class Engine:
                 # Log/Report
                 #
                 # Record the current performance on train set
-                self.train_log.record(['iteration','epoch','accuracy','loss'],[self.iteration,epoch,res['accuracy'],res['loss']])
+                self.train_log.record(['iteration','epoch','loss'],[self.iteration,epoch,res['loss']])
                 self.train_log.write()
                 self.train_log.flush()
                 
                 # once in a while, report
                 if i==0 or i%report_interval == 0:
-                    print('... Iteration %d ... Epoch %1.2f ... Loss %1.3f ... Accuracy %1.3f' % (self.iteration,epoch,res['loss'],res['accuracy']))
+                    print('... Iteration %d ... Epoch %1.2f ... Loss %1.3f' % (self.iteration,epoch,res['loss']))
                     pass
                     
                 
@@ -328,4 +367,4 @@ class Engine:
             # load iteration count
             self.iteration = checkpoint['global_step']
         print('Restoration complete.')
-            
+
