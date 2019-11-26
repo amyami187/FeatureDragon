@@ -4,7 +4,7 @@
 # In[ ]:
 
 
-from sympy.physics.quantum import TensorProduct as tensor
+#from sympy.physics.quantum import TensorProduct as tensor
 from pennylane import numpy as np
 import pennylane as qml
 from sklearn.preprocessing import normalize
