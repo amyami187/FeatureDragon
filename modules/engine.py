@@ -130,9 +130,9 @@ class Engine:
             
             model_out = self.model(data_adj,labels_adj)
             # Training
-            print('model out: {}, label: {}'.format(model_out,self.label[-1]))
+            #print('model out: {}, label: {}'.format(model_out,self.label[-1]))
             self.loss = self.criterion(model_out,self.label[-1])
-            print('loss: {}'.format(self.loss))
+            #print('loss: {}'.format(self.loss))
             
             prediction = torch.where(model_out>0.0,torch.tensor([1.0]),torch.tensor([-1.0]))
             #accuracy   = (prediction == self.label).sum().item() / float(prediction.nelement())        

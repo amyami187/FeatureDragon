@@ -29,9 +29,9 @@ class QCircuitNet(torch.nn.Module):
         #exp_vals=circuit(self.params,Xdata=X_args, Y=Y_args).float()
         exp_vals=circuit(self.params,Xdata=X_args, Y=Y_args)
         exp_vals_float=exp_vals.float()
-        print('circuit output values: {} {}'.format(exp_vals_float[0],exp_vals_float[1]))
+        #print('circuit output values: {} {}'.format(exp_vals_float[0],exp_vals_float[1]))
         out=exp_vals_float[0]*exp_vals_float[1]
-        print('model out: {}'.format(out))
+        #print('model out: {}'.format(out))
                                  
         #exp_vals=torch.stack(exp_vals_list,dim=0)
         #print('exp_vals: {}'.format(exp_vals))
