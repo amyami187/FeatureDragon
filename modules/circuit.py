@@ -10,9 +10,11 @@ import pennylane as qml
 from sklearn.preprocessing import normalize
 import torch
 
-dev_qubit = qml.device('default.qubit', wires=6)
+import builtins
+
+# dev_qubit = qml.device('default.qubit', wires=6)
 # Hadamard classifier circuit for 4 data points with 1 new input to be classified and any arbitray featuremap
-@qml.qnode(dev_qubit, interface='torch')
+@qml.qnode(builtins.dev_qubit, interface='torch')
 def circuit(phi0, Xdata=None, Y=None):
     X1 = Xdata[0:, 0]
     X2 = Xdata[0:, 1]
