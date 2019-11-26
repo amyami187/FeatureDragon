@@ -21,6 +21,7 @@ from modules.featuremap import featuremap
 def circuit(phi0, Xdata=None, Y=None):
     X1 = Xdata[0:, 0]
     X2 = Xdata[0:, 1]
+    #print("data inside circuit: X1: {} X2: {}".format(X1,X2))
     for i in range(2):
         qml.Hadamard(wires=i)
 

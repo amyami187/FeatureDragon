@@ -191,9 +191,9 @@ class Engine:
                             try:
                                 ens_train_data = next(self.train_eval_iter)
                             except StopIteration:
-                                print("starting over on the validation set")
-                                self.train_eval_iter=iter(self.val_dldr)
-                                ens_train_data = next(self.val_iter)
+                                print("starting over on the training set")
+                                self.train_eval_iter=iter(self.train_eval_dldr)
+                                ens_train_data = next(self.train_eval_iter)
                                 
                             ens_data=ens_train_data[0]
                             ens_label=ens_train_data[1]

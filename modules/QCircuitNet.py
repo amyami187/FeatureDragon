@@ -22,6 +22,7 @@ class QCircuitNet(torch.nn.Module):
 
     def forward(self,X_args,Y_args):
         
+        #print('data inside torch wrapper: X_args {}, Y_args {}'.format(X_args,Y_args))
         # evaluate on a sub batch
         #for i_eval in range(args.size()[0]):
         #exp_vals.append(circuit(self.params,X=X_args[i_eval], Y=Y_args[i_eval]).float())
