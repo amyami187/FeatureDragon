@@ -13,4 +13,8 @@ def featuremap(x1, x2, y, phi0):
     qml.CRX(x2, wires = [4,3])
     qml.CRX(phi0[0], wires = [4,2])
     qml.CRX(phi0[1], wires = [4,3])
+    qml.CRX(x1, wires = [4,2])    
+    qml.CRX(x2, wires = [4,3])
+    qml.CRX(phi0[2], wires = [4,2])
+    qml.CRX(phi0[3], wires = [4,3])
 
