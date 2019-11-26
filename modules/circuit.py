@@ -22,11 +22,13 @@ def circuit(phi0, Xdata=None, Y=None):
     for i in range(2):
         qml.Hadamard(wires=i)
 
-    qml.PauliX(wires=[0,1])
+    qml.PauliX(wires=[0])
+    qml.PauliX(wires=[1])
     qml.Toffoli(wires=[0,1,5])
     featuremap(X1[0], X2[0], Y[0], phi0)
     qml.Toffoli(wires=[0,1,5])
-    qml.PauliX(wires=[0,1])
+    qml.PauliX(wires=[0])
+    qml.PauliX(wires=[1])
 
     qml.PauliX(wires = 0)
     qml.Toffoli(wires=[0,1,5])
