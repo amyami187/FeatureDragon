@@ -1,7 +1,8 @@
+# %%
 
 # coding: utf-8
 
-# In[ ]:
+# %%
 
 
 #from sympy.physics.quantum import TensorProduct as tensor
